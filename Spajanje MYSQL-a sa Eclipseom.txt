@@ -1,0 +1,15 @@
+Potrebno prije postavljanja:
+1) Data Tools Platform - DTP
+http://www.eclipse.org/datatools/downloads.php
+Pazi na koju verziju Eclipse-a imaš.
+Stisni na Repository. Prati upute. 
+
+2) MySQL Connector/J - Java
+Connector je u repozitoriju. Ako ne radi, skini:
+https://dev.mysql.com/downloads/connector/j/
+Pod Select Operating System odaberi Platform Independent, skini zip.
+Unpackiraj na neko zgodno mjesto gdje ga neæeš obrisat.
+
+I sad povezivanje:
+https://www.zkoss.org/wiki/Setup_MySQL_DB_in_Eclipse
+Ovaj tutorial od Setup Database Connection in MySQL na dalje.
