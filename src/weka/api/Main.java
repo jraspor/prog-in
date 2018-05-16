@@ -1,133 +1,128 @@
-package weka.api;
+package prog_projekt;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Random;
+import org.eclipse.swt.widgets.Display;
+import java.sql.*;
 
-//Weka handles .arff (attribute relation file format) and .csv formats
-import weka.classifiers.Evaluation;
-//import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.trees.J48;
-import weka.core.Instances;
-import weka.core.converters.ConverterUtils.DataSource;
+import javax.swing.*;
+import java.io.*;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+//import org.eclipse.swt.custom.ScrolledComposite;
 
-//TODO: use classloader from java libs to get classes by name???
+public class DodPodatak {
 
-public class Main {
+	protected Shell shlDodajNoviPodatak;
+	JFileChooser fileC = new JFileChooser();
+	private Text text;
+	String path = null;
 
-	public static void main(String[] args) {
+	/**
+	 * Launch the application.
+	 * @param args
+	 */
+	public static void noviProz() {
 		try {
-			
-			/*
-			 * STARTING CODE
-			 * 
-			DataSource source = new DataSource("C:\\Users\\vitom\\Desktop\\iris.arff");
-			
-			Instances dataset = source.getDataSet(); 
-			  
-			//class index treba postaviti na zadnji atribut
-			dataset.setClassIndex(dataset.numAttributes() - 1);
-			
-			//create and build classifier
-			//TODO: za kasnije bi bilo dobro diskretizirati vrijednosti prije buildanja classifiera da vidimo ako podrzava odredeni tip
-			NaiveBayes nb = new NaiveBayes();
-			
-			//Ako zelim postaviti neke opcije to radim ovdje prije buildanja
-			//1. Napravi string array optionsa koje zelimo staviti i spremimo ih, npr. za 2 opcije:
-			//String[] options = new String[2];
-			//options[0] = "-U";
-			//options[1] = "opcija2";
-			//nb.setOptions(options);
-			
-			nb.buildClassifier(dataset);
-			
-			//isprintaj capabilities od tog classifiera (atribute koje moze primiti)
-			
-			System.out.println(nb.getCapabilities().toString());
-			*
-			*
-			*/
-			
-			DataSource source = new DataSource("C:\\Users\\vitom\\Desktop\\iris.arff");
-			
-			Instances trainDataset = source.getDataSet();
-			
-			trainDataset.setClassIndex(trainDataset.numAttributes() - 1);
-			
-			J48 tree = new J48();
-			
-			tree.buildClassifier(trainDataset);
-			
-			Evaluation eval = new Evaluation(trainDataset);
-			
-			DataSource source1 = new DataSource("C:\\Users\\vitom\\Desktop\\iris-test.arff");
-			Instances testDataset = source1.getDataSet();
-			testDataset.setClassIndex(testDataset.numAttributes() - 1);
-			
-			eval.evaluateModel(tree, trainDataset);
-			
-			//za cross validation koristimo sljedeci kod umjesto linije 63
-			//Random random = new Random(1);
-			//int numFolds = 10;
-			//eval.crossValidateModel(tree, testDataset, numFolds, random);
-			
-			System.out.println(eval.toSummaryString("Eval results:\n", false));
-			System.out.println(eval.toMatrixString("=== Overall confusion matrix ===\n"));
+			DodPodatak window = new DodPodatak();
+			window.open();
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("IO exception has been thrown, maybe this file does not exist.");
 		}
-		
-		/*
-		 * THIS PART IS WHERE I LOAD CLASS BY NAME, CREATE DUMMY OBJECT AND USE METHOD ADD 
-		try {
-			
-			//Load class by its "path"
-			Class c = Class.forName("weka.api.Dummy");
-			System.out.println("Loaded class: " + c.getName());
-			
-			//Set arguments for constructor
-			//First set Class array with argument types for constructor
-			Class[] arguments = new Class[1];
-			arguments[0] = String.class;
-			//Second create  those arguments
-			String pathToFile = "path";
-			try {
-				//Now I can create object of that class
-				Object o = c.getDeclaredConstructor(arguments).newInstance(pathToFile);
-				System.out.println("Cereated object: " + o.toString());
-				//Let's call a method. As we will know arguments and names of each function, we can call it like this.
-				//Initialize parameters
-				Class parameterTypes[] = new Class[2];
-				parameterTypes[0] = Integer.TYPE;
-				parameterTypes[1] = Integer.TYPE;
-				//Get wanted method by name and param. types
-				Method add = c.getMethod("add", parameterTypes);
-				
-				//Now we can use this method on object o initalized on line 95
-				//Create argument values for methods
-				Object[] argumentList = new Object[2];
-				argumentList[0] = new Integer(2);
-				argumentList[1] = new Integer(2);
-				//This means: invoke method "add" on object "o" with list of arguments "argumentList"
-				Object retObj = add.invoke(o, argumentList);
-				System.out.println("Adding: " + argumentList[0] + " + " + argumentList[1]);
-				Integer retVal = (Integer)retObj;
-				System.out.println("Returned value is: " + retVal);
-				
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-				
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		UNTILL HERE --------------------------------------
-		*/
-		
 	}
 
+	/**
+	 * Open the window.
+	 */
+	public void open() {
+		Display display = Display.getDefault();
+		createContents();
+		shlDodajNoviPodatak.open();
+		shlDodajNoviPodatak.layout();
+		while (!shlDodajNoviPodatak.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+	}
+
+	/**
+	 * Create contents of the window.
+	 * @wbp.parser.entryPoint
+	 */
+	void createContents() {
+		shlDodajNoviPodatak = new Shell();
+		shlDodajNoviPodatak.setSize(450, 300);
+		shlDodajNoviPodatak.setText("Dodaj novi podatak");
+		
+		
+		Label lblNewLabel = new Label(shlDodajNoviPodatak, SWT.NONE);
+		lblNewLabel.setBounds(10, 46, 412, 20);
+		lblNewLabel.setText("*odabrana datoteka*");
+		
+		Button btnNewButton = new Button(shlDodajNoviPodatak, SWT.NONE);
+		btnNewButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fileC.setCurrentDirectory(new File(System.getProperty("user.home")));
+				if(e.getSource()==btnNewButton) {
+					int res = fileC.showOpenDialog(fileC);
+					
+					if(res==JFileChooser.APPROVE_OPTION){
+						File file = fileC.getSelectedFile();
+						lblNewLabel.setText(file.getAbsolutePath().toString());
+					
+						path = file.getAbsolutePath().toString();
+					
+					}
+				}				
+			}
+			
+		});
+		btnNewButton.setBounds(10, 10, 90, 30);
+		btnNewButton.setText("Odaberi");
+		
+		text = new Text(shlDodajNoviPodatak, SWT.BORDER);
+		text.setBounds(10, 113, 174, 26);
+		
+		Label lblNapiiIdJavnog = new Label(shlDodajNoviPodatak, SWT.NONE);
+		lblNapiiIdJavnog.setBounds(10, 87, 174, 20);
+		lblNapiiIdJavnog.setText("Napi\u0161i ID javnog podatka");
+		
+		Button btnPohrani = new Button(shlDodajNoviPodatak, SWT.NONE);
+		btnPohrani.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				upis();
+				
+			}
+		});
+		btnPohrani.setBounds(10, 145, 90, 30);
+		btnPohrani.setText("Pohrani");
+		
+		
+		
+
+	}
+	
+	void upis() {
+		 try { 
+	            String url = "jdbc:mysql://localhost:3306/database"; 
+	            Connection conn = DriverManager.getConnection(url,"root",""); 
+	            Statement st = conn.createStatement(); 
+	            st.executeUpdate("INSERT INTO `javni_pod` (`ID`, `path`) " + 
+	                "VALUES ('" + text.getText() + "','" + path + "')"); 
+	           
+	            conn.close(); 
+	        } catch (Exception e) { 
+	            System.err.println("Got an exception! "); 
+	            System.err.println(e.getMessage()); 
+	        } 
+	}
+	
+	
 }
