@@ -12,14 +12,28 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-//import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class DodPodatak {
 
+	int succ;
 	protected Shell shlDodajNoviPodatak;
 	JFileChooser fileC = new JFileChooser();
-	private Text text;
+	private Text id;
 	String path = null;
+	String path2 = null;
+	String poruka = "";
+	String imeDat = "";
+	private Text ime;
 
 	/**
 	 * Launch the application.
@@ -27,7 +41,7 @@ public class DodPodatak {
 	 */
 	public static void noviProz() {
 		try {
-			DodPodatak window = new DodPodatak();
+			dodPod window = new dodPod();
 			window.open();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -59,9 +73,22 @@ public class DodPodatak {
 		shlDodajNoviPodatak.setText("Dodaj novi podatak");
 		
 		
-		Label lblNewLabel = new Label(shlDodajNoviPodatak, SWT.NONE);
-		lblNewLabel.setBounds(10, 46, 412, 20);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(shlDodajNoviPodatak, SWT.H_SCROLL);
+		scrolledComposite.setBounds(166, 10, 256, 45);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		
+		Composite composite = new Composite(scrolledComposite, SWT.NONE);
+		composite.setLayout(new GridLayout(1, false));
+		
+		Label lblNewLabel = new Label(composite, SWT.SHADOW_NONE);
+		GridData gd_lblNewLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblNewLabel.widthHint = 568;
+		lblNewLabel.setLayoutData(gd_lblNewLabel);
 		lblNewLabel.setText("*odabrana datoteka*");
+		
+		scrolledComposite.setContent(composite);
+		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
 		Button btnNewButton = new Button(shlDodajNoviPodatak, SWT.NONE);
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
@@ -73,9 +100,19 @@ public class DodPodatak {
 					
 					if(res==JFileChooser.APPROVE_OPTION){
 						File file = fileC.getSelectedFile();
-						lblNewLabel.setText(file.getAbsolutePath().toString());
+						path = file.getAbsolutePath();
+						imeDat = file.getName();
+						
+						
+						if(path.endsWith(".arff")) {
+							lblNewLabel.setText(path);
+						}else {
+							path = null;
+							lblNewLabel.setText("Krivi nastavak!");
+						}
 					
-						path = file.getAbsolutePath().toString();
+
+						
 					
 					}
 				}				
@@ -85,43 +122,117 @@ public class DodPodatak {
 		btnNewButton.setBounds(10, 10, 90, 30);
 		btnNewButton.setText("Odaberi");
 		
-		text = new Text(shlDodajNoviPodatak, SWT.BORDER);
-		text.setBounds(10, 113, 174, 26);
+		id = new Text(shlDodajNoviPodatak, SWT.BORDER);
+		id.setBounds(10, 139, 174, 26);
+		
+		ime = new Text(shlDodajNoviPodatak, SWT.BORDER);
+		ime.setBounds(10, 81, 174, 26);
 		
 		Label lblNapiiIdJavnog = new Label(shlDodajNoviPodatak, SWT.NONE);
-		lblNapiiIdJavnog.setBounds(10, 87, 174, 20);
+		lblNapiiIdJavnog.setBounds(10, 113, 174, 20);
 		lblNapiiIdJavnog.setText("Napi\u0161i ID javnog podatka");
+		Label label = new Label(shlDodajNoviPodatak, SWT.NONE);
+		label.setBounds(10, 218, 307, 20);
 		
 		Button btnPohrani = new Button(shlDodajNoviPodatak, SWT.NONE);
 		btnPohrani.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if(path == null){
+					label.setText("Odaberi datoteku!");
+				}else if(id.getCharCount() == 0) {
+					label.setText("Upiši ID javnog podatka!");
+
+				}else if(ime.getCharCount() == 0){
+					label.setText("Upiši ime javnog podatka!");
+					
+				}else {
+					
+						Path src = Paths.get(path);
+						Path dst = Paths.get("C:\\xampp\\htdocs\\javni_podaci\\" + imeDat);
+						path2 = dst.toString().replace("\\", "\\\\");
+											
+						try {
+							System.out.println(path2);
+
+							if(upis() == true) {
+								Files.copy(src, dst);
+								label.setText(poruka);
+							}else {
+								label.setText(poruka);
+
+							}
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+						}
+
+					
+				}
 				
-				upis();
 				
 			}
 		});
-		btnPohrani.setBounds(10, 145, 90, 30);
+		btnPohrani.setBounds(10, 171, 90, 30);
 		btnPohrani.setText("Pohrani");
 		
+		Button btnPonovi = new Button(shlDodajNoviPodatak, SWT.NONE);
+		btnPonovi.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				label.setText("");
+				lblNewLabel.setText("");
+				id.setText("");
+				ime.setText("");
+
+
+				
+				
+			}
+		});
+		btnPonovi.setBounds(332, 213, 90, 30);
+		btnPonovi.setText("Ponovi");
 		
 		
+		Label lblNapiiImeJavnog = new Label(shlDodajNoviPodatak, SWT.NONE);
+		lblNapiiImeJavnog.setBounds(10, 55, 192, 20);
+		lblNapiiImeJavnog.setText("Napi\u0161i ime javnog podatka");
 
 	}
 	
-	void upis() {
+	boolean upis() {
 		 try { 
-	            String url = "jdbc:mysql://localhost:3306/database"; 
+	            String url = "jdbc:mysql://localhost:3306/database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET"; 
 	            Connection conn = DriverManager.getConnection(url,"root",""); 
 	            Statement st = conn.createStatement(); 
-	            st.executeUpdate("INSERT INTO `javni_pod` (`ID`, `path`) " + 
-	                "VALUES ('" + text.getText() + "','" + path + "')"); 
+	            if(path != null) {
+	            	ResultSet provjera = st.executeQuery("SELECT * FROM `javni_pod` WHERE path = '"+ path2 + "' or id = '" + id.getText() + "' or name = '"+ ime.getText() +"'");
+	            	if(!provjera.next()) {
+	            		st.executeUpdate("INSERT INTO `javni_pod` (`ID`, `path`, `name`) " + 
+		    	                "VALUES ('" + id.getText() + "','" + path2 + "','"+ ime.getText() +"')"); 
+		            	poruka = "Uspješno izvršeno";
+			    		return true; 
+	            	}else {
+	            		poruka = "Datoteka je već u bazi";
+	            		return false;
+	            	}
+	            	
+	            	
+
+	            }else{
+	            	return false;
+	            }
+	            
 	           
-	            conn.close(); 
+
 	        } catch (Exception e) { 
 	            System.err.println("Got an exception! "); 
 	            System.err.println(e.getMessage()); 
-	        } 
+	            poruka = "Neuspijelo spajanje na bazu";
+	    		return false; 
+
+	           
+	        }
 	}
 	
 	
